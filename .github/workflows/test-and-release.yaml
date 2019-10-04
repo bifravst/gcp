@@ -29,10 +29,3 @@ jobs:
         run: |
           npm i --no-save semantic-release@next
           npx semantic-release
-      - name: Clean up End-to-End test resources
-        if: always()
-        run: |
-          node cli drop-athena-resources
-          node cli purge-buckets
-          npx cdk -a 'node dist/cdk/cloudformation-test.js' destroy -f '*'
-          npx cdk -a 'node dist/cdk/cloudformation-sourcecode.js' destroy -f '*'
