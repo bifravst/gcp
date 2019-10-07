@@ -7,7 +7,7 @@ export const registerCaCommand = ({
 }: {
 	certsDir: string
 }): ComandDefinition => ({
-	command: 'generate-ca',
+	command: 'register-ca',
 	action: async () => {
 		const { certificate } = await generateCA({
 			certsDir,
@@ -18,12 +18,8 @@ export const registerCaCommand = ({
 				console.log(...message.map(m => chalk.cyan(m)))
 			},
 		})
-		console.log(
-			chalk.green(`CA certificate genrated.`),
-		)
-		console.log(
-			chalk.white(certificate)
-		)
+		console.log(chalk.green(`CA certificate genrated.`))
+		console.log(chalk.white(certificate))
 		console.log(chalk.green('You can now generate device certificates.'))
 	},
 	help: 'Create a CA for devices.',

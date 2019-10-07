@@ -1,14 +1,43 @@
 import * as program from 'commander'
 import chalk from 'chalk'
 import * as path from 'path'
-import { registerCaCommand } from './commands/generate-ca'
+import { registerCaCommand } from './commands/register-ca'
+import { createRegistryCommand } from './commands/create-registry'
+import { google } from 'googleapis'
+
+const region = process.env?.GCP_REGION ?? 'europe-west1'
 
 const bifravstCLI = async () => {
 	const certsDir = path.resolve(process.cwd(), 'certificates')
 
+	const auth = new google.auth.GoogleAuth({
+		keyFile: path.resolve(process.cwd(), 'gcp.json'),
+		scopes: [
+			'https://www.googleapis.com/auth/cloud-platform',
+			'https://www.googleapis.com/auth/cloudiot'
+		]
+	})
+	const authClient = await auth.getClient()
+
+	// obtain the current project Id
+	const project = await auth.getProjectId()
+	console.log(chalk.grey('Project:'), chalk.magenta(project))
+
+	const iotClient = await google.cloudiot({
+		version: 'v1',
+		auth: authClient,
+	})
+
 	program.description('Bifravst Command Line Interface')
 
-	const commands = [registerCaCommand({ certsDir })]
+	const commands = [
+		registerCaCommand({ certsDir }),
+		createRegistryCommand({
+			iotClient,
+			region,
+			project
+		}),
+	]
 
 	let ran = false
 	commands.forEach(({ command, action, help, options }) => {

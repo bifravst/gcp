@@ -4,3 +4,4 @@ npm-debug.log
 dist/
 cdk.out/
 certificates/
+gcp.json
