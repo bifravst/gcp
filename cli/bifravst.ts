@@ -4,6 +4,7 @@ import * as path from 'path'
 import { registerCaCommand } from './commands/register-ca'
 import { createRegistryCommand } from './commands/create-registry'
 import { google } from 'googleapis'
+import { registerDeviceCommand } from './commands/register-device'
 
 const region = process.env?.GCP_REGION ?? 'europe-west1'
 
@@ -41,6 +42,11 @@ const bifravstCLI = async () => {
 			region,
 			project
 		}),
+		registerDeviceCommand({
+			iotClient,
+			region,
+			project
+		})
 	]
 
 	let ran = false
