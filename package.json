@@ -30,7 +30,8 @@
     "@commitlint/cli": "^8.2.0",
     "@commitlint/config-angular": "^8.2.0",
     "check-node-version": "^4.0.1",
-    "husky": "^3.0.7"
+    "husky": "^3.0.7",
+    "typescript": "^3.7.0-beta"
   },
   "husky": {
     "hooks": {

@@ -23,7 +23,7 @@ const bifravstCLI = async () => {
 	const project = await auth.getProjectId()
 	console.log(chalk.grey('Project:'), chalk.magenta(project))
 
-	const iotClient = await google.cloudiot({
+	const iotClient = google.cloudiot({
 		version: 'v1',
 		auth: authClient,
 	})
@@ -31,7 +31,11 @@ const bifravstCLI = async () => {
 	program.description('Bifravst Command Line Interface')
 
 	const commands = [
-		registerCaCommand({ certsDir }),
+		registerCaCommand({
+			certsDir, iotClient,
+			region,
+			project
+		}),
 		createRegistryCommand({
 			iotClient,
 			region,

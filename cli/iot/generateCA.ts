@@ -3,7 +3,7 @@ import { caFileLocations } from './caFileLocations'
 import { run } from '../process/run'
 
 /**
- * Registers a CA for devices
+ * Generates a CA certificate
  * @see https://cloud.google.com/iot/docs/how-tos/credentials/verifying-credentials
  */
 export const generateCA = async (args: {
