@@ -49,6 +49,10 @@ export const registerDeviceCommand = ({
 
 		const registryName = `projects/${project}/locations/${region}/registries/bifravst`
 
+		const key = await fs.readFile(path.resolve(certsDir, certificate.publicKey), 'utf-8')
+
+		console.log(key)
+
 		await iotClient.projects.locations.registries.devices.create({
 			parent: registryName,
 			requestBody: {
@@ -56,8 +60,8 @@ export const registerDeviceCommand = ({
 				credentials: [
 					{
 						publicKey: {
-							key: await fs.readFile(path.resolve(certsDir, certificate.publicKey), 'utf-8'),
-							format: 'RSA_X509_PEM'
+							format: 'RSA_X509_PEM',
+							key
 						},
 						expirationTime: expires.toISOString()
 					},
@@ -77,7 +81,7 @@ export const registerDeviceCommand = ({
 						fs.readFile(path.resolve(process.cwd(), 'data', 'GSR4.crt'), 'utf-8')
 					])).join(os.EOL),
 					privateKey: await fs.readFile(certificate.privateKey, 'utf-8'),
-					publicKey: await fs.readFile(certificate.publicKey, 'utf-8'),
+					publicKey: key,
 					clientId: deviceId,
 					brokerHostname: 'mqtt.2030.ltsapis.goog',
 				},
