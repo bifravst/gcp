@@ -7,6 +7,7 @@ import { deviceFileLocations } from '../iot/deviceFileLocations'
 import { cloudiot_v1 } from 'googleapis'
 import { promises as fs } from 'fs'
 import * as os from 'os'
+import { defaultConfig } from '../device/defaultConfig';
 
 export const registerDeviceCommand = ({
 	iotClient,
@@ -51,8 +52,6 @@ export const registerDeviceCommand = ({
 
 		const key = await fs.readFile(path.resolve(certsDir, certificate.publicKey), 'utf-8')
 
-		console.log(key)
-
 		await iotClient.projects.locations.registries.devices.create({
 			parent: registryName,
 			requestBody: {
@@ -66,6 +65,9 @@ export const registerDeviceCommand = ({
 						expirationTime: expires.toISOString()
 					},
 				],
+				config: {
+					binaryData: Buffer.from(JSON.stringify(defaultConfig)).toString('base64')
+				}
 			}
 		})
 
@@ -79,7 +81,7 @@ export const registerDeviceCommand = ({
 					caCert: (await Promise.all([
 						fs.readFile(path.resolve(process.cwd(), 'data', 'gtsltsr.crt'), 'utf-8'),
 						fs.readFile(path.resolve(process.cwd(), 'data', 'GSR4.crt'), 'utf-8')
-					])).join(os.EOL),
+					])).map(buffer => buffer.toString()).join(os.EOL),
 					privateKey: await fs.readFile(certificate.privateKey, 'utf-8'),
 					publicKey: key,
 					clientId: deviceId,
