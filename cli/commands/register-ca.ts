@@ -17,7 +17,7 @@ export const registerCaCommand = ({
 	command: 'register-ca',
 	action: async () => {
 		const registryName = `projects/${project}/locations/${region}/registries/bifravst`
-		await (iotClient.projects.locations
+		const { data: registry } = await (iotClient.projects.locations
 			.registries as cloudiot_v1.Resource$Projects$Locations$Registries).get({
 				name: registryName,
 			})
@@ -40,6 +40,7 @@ export const registerCaCommand = ({
 			updateMask: 'credentials',
 			requestBody: {
 				credentials: [
+					...(registry.credentials || []),
 					{
 						publicKeyCertificate: {
 							certificate,

@@ -54,7 +54,7 @@ export const generateCA = async (args: {
 			'-out',
 			caFiles.cert,
 			'-subj',
-			`/CN=unused`,
+			'/CN=unused',
 		],
 		log: debug,
 	})

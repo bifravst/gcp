@@ -9,7 +9,10 @@ export const run = async (args: {
 }): Promise<string> =>
 	new Promise((resolve, reject) => {
 		args.log && args.log(`${args.command} ${args.args && args.args.join(' ')}`)
-		const p = spawn(args.command, args.args)
+		const p = spawn(args.command, args.args, {
+			env: process.env,
+			cwd: process.cwd()
+		})
 		const result = [] as string[]
 		const errors = [] as string[]
 		if (args.input) {
@@ -20,7 +23,7 @@ export const run = async (args: {
 				return reject(
 					new Error(
 						`${args.command} ${args.args &&
-							args.args.join(' ')} failed: ${errors.join(os.EOL)}`,
+						args.args.join(' ')} failed: ${errors.join(os.EOL)}`,
 					),
 				)
 			}

@@ -63,11 +63,11 @@ export const generateDeviceCertificate = async ({
 			'-CA',
 			caFiles.cert,
 			'-CAcreateserial',
-			'-out',
-			deviceFiles.publicKey,
 			'-days',
 			`${validityInDays}`,
 			'-sha256',
+			'-out',
+			deviceFiles.publicKey,
 		],
 		log: debug,
 	})

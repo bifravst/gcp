@@ -7,7 +7,7 @@ import { deviceFileLocations } from '../iot/deviceFileLocations'
 import { cloudiot_v1 } from 'googleapis'
 import { promises as fs } from 'fs'
 import * as os from 'os'
-import { defaultConfig } from '../device/defaultConfig';
+import { defaultConfig } from '../device/defaultConfig'
 
 export const registerDeviceCommand = ({
 	iotClient,
@@ -29,7 +29,7 @@ export const registerDeviceCommand = ({
 		const id = deviceId || (await randomWords({ numWords: 3 })).join('-')
 
 		const certsDir = path.resolve(process.cwd(), 'certificates')
-		const { expires } = await generateDeviceCertificate({
+		await generateDeviceCertificate({
 			deviceId: id,
 			certsDir,
 			log: (...message: any[]) => {
@@ -52,25 +52,6 @@ export const registerDeviceCommand = ({
 
 		const key = await fs.readFile(path.resolve(certsDir, certificate.publicKey), 'utf-8')
 
-		await iotClient.projects.locations.registries.devices.create({
-			parent: registryName,
-			requestBody: {
-				id,
-				credentials: [
-					{
-						publicKey: {
-							format: 'RSA_X509_PEM',
-							key
-						},
-						expirationTime: expires.toISOString()
-					},
-				],
-				config: {
-					binaryData: Buffer.from(JSON.stringify(defaultConfig)).toString('base64')
-				}
-			}
-		})
-
 		// Writes a self-contained JSON file
 		// This setup uses the long-term MQTT domain
 		// See https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#downloading_mqtt_server_certificates
@@ -79,20 +60,62 @@ export const registerDeviceCommand = ({
 			JSON.stringify(
 				{
 					caCert: (await Promise.all([
-						fs.readFile(path.resolve(process.cwd(), 'data', 'gtsltsr.crt'), 'utf-8'),
-						fs.readFile(path.resolve(process.cwd(), 'data', 'GSR4.crt'), 'utf-8')
-					])).map(buffer => buffer.toString()).join(os.EOL),
+						fs.readFile(path.resolve(process.cwd(), 'data', 'gtsltsr.pem'), 'utf-8'),
+						fs.readFile(path.resolve(process.cwd(), 'data', 'GSR4.pem'), 'utf-8')
+					])).join(os.EOL),
 					privateKey: await fs.readFile(certificate.privateKey, 'utf-8'),
 					publicKey: key,
-					clientId: deviceId,
+					clientId: id,
 					brokerHostname: 'mqtt.2030.ltsapis.goog',
 				},
 				null,
 				2,
 			),
-			'utf-8',
 		)
 
+
+		try {
+			// For some reason this fails with 
+			// The signature of device credential in position 0 could not be verified against any registry certificate.
+			await iotClient.projects.locations.registries.devices.create({
+				parent: registryName,
+				requestBody: {
+					blocked: false,
+					credentials: [
+						{
+							publicKey: {
+								format: 'RSA_X509_PEM',
+								key
+							}
+						},
+					],
+					id,
+					config: {
+						binaryData: Buffer.from(JSON.stringify(defaultConfig)).toString('base64')
+					}
+				}
+			})
+
+		} catch (err) {
+			console.debug('Caught error:')
+			console.debug(JSON.stringify(err, null, 2))
+			console.debug()
+			console.error(chalk.red(err.message))
+			console.error(chalk.yellow('Run these commands manually:'))
+
+			console.error()
+			console.error(chalk.blueBright([
+				'gcloud',
+				'iot', 'devices', 'create', id, '--project', project, '--region', region, '--registry', 'bifravst', '--public-key',
+				`path=${certificate.publicKey},type=rsa-x509-pem`,
+			].join(' ')))
+			console.error(chalk.blueBright([
+				'gcloud',
+				'iot', 'devices', 'configs', 'update', '--device', id, '--region', region, '--registry', 'bifravst',
+				'--config-data',
+				`'${JSON.stringify(defaultConfig)}'`
+			].join(' ')))
+		}
 		console.log()
 		console.log(chalk.green('You can now connect to the broker.'))
 	},
