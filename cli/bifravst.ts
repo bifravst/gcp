@@ -8,6 +8,7 @@ import { registerDeviceCommand } from './commands/register-device'
 import { connectCommand } from './commands/connect';
 
 const region = process.env?.GCP_REGION ?? 'europe-west1'
+const deviceUiFirebaseProject = process.env.DEVICE_UI_FIREBASE_PROJECT ?? 'bifravst-device-ui'
 
 const bifravstCLI = async () => {
 	const certsDir = path.resolve(process.cwd(), 'certificates')
@@ -16,7 +17,9 @@ const bifravstCLI = async () => {
 		keyFile: path.resolve(process.cwd(), 'gcp.json'),
 		scopes: [
 			'https://www.googleapis.com/auth/cloud-platform',
-			'https://www.googleapis.com/auth/cloudiot'
+			'https://www.googleapis.com/auth/cloudiot',
+			'https://www.googleapis.com/auth/firebase.readonly',
+			'https://www.googleapis.com/auth/firebase'
 		]
 	})
 	const authClient = await auth.getClient()
@@ -50,6 +53,7 @@ const bifravstCLI = async () => {
 			project
 		}),
 		connectCommand({
+			deviceUiFirebaseProject,
 			certsDir,
 			project,
 			region,

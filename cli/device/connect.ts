@@ -1,11 +1,12 @@
-import { promises as fs } from 'fs';
-import { connect as mqttConnect } from 'mqtt';
-import { deviceFileLocations } from '../iot/deviceFileLocations';
-import chalk from 'chalk';
-import * as jwt from 'jsonwebtoken';
-import { URL } from 'url';
-import { deviceTopics } from '../iot/deviceTopics';
-import { defaultConfig } from './defaultConfig';
+import { promises as fs } from 'fs'
+import { connect as mqttConnect } from 'mqtt'
+import { deviceFileLocations } from '../iot/deviceFileLocations'
+import chalk from 'chalk'
+import * as jwt from 'jsonwebtoken'
+import { URL } from 'url'
+import { deviceTopics } from '../iot/deviceTopics'
+import { defaultConfig } from './defaultConfig'
+import { uiServer, WebSocketConnection } from '@bifravst/device-ui-server'
 
 /**
  * Connect to the AWS IoT broker using a generated device certificate
@@ -16,12 +17,14 @@ export const connect = async ({
 	endpoint,
 	project,
 	region,
+	deviceUiUrl,
 }: {
 	deviceId: string
 	endpoint: string
 	project: string
 	region: string
 	certsDir: string
+	deviceUiUrl: string
 }) => {
 	const deviceFiles = deviceFileLocations({ certsDir, deviceId })
 
@@ -82,10 +85,26 @@ export const connect = async ({
 		clean: true,
 	})
 
+	let wsConnection: WebSocketConnection
+
 	connection.on('connect', async () => {
 		console.log(chalk.green(chalk.inverse(' connected ')))
 
-		connection.subscribe(topics.config, {qos: 1})
+		await uiServer({
+			deviceUiUrl,
+			deviceId: deviceId,
+			onUpdate: update => {
+				console.log(chalk.magenta('<'), chalk.cyan(JSON.stringify(update)))
+				console.log(deviceId, { state: { reported: update } })
+			},
+			onWsConnection: c => {
+				console.log(chalk.magenta('[ws]'), chalk.cyan('connected'))
+				wsConnection = c
+				connection.subscribe(topics.config, { qos: 1 })
+			},
+		})
+
+
 	})
 
 	connection.on('close', () => {
@@ -105,11 +124,16 @@ export const connect = async ({
 
 		switch (topic) {
 			case topics.config:
-				console.log(chalk.blue('Config:'))
-				console.log({
+				const cfg = {
 					...defaultConfig,
 					...JSON.parse(message.toString())
-				})
+				}
+				console.log(chalk.blue('Config:'))
+				console.log(cfg)
+				if (wsConnection) {
+					console.log(chalk.magenta('[ws>'), JSON.stringify(cfg))
+					wsConnection.send(JSON.stringify(cfg))
+				}
 				break
 			default:
 				console.log(chalk.red(`Unexpected topic:`), chalk.yellow(topic))

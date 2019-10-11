@@ -5,12 +5,14 @@ const DEFAULT_ENDPOINT = 'mqtts://mqtt.googleapis.com:8883'
 
 export const connectCommand = ({
 	certsDir,
-								   project,
-								   region,
+	project,
+	region,
+	deviceUiFirebaseProject,
 }: {
 	certsDir: string
 	project: string
 	region: string
+	deviceUiFirebaseProject: string
 }): ComandDefinition => ({
 	command: 'connect <deviceId>',
 	options: [
@@ -20,13 +22,16 @@ export const connectCommand = ({
 			defaultValue: DEFAULT_ENDPOINT,
 		},
 	],
-	action: async (deviceId: string, { endpoint }) =>
-		connect({
-			deviceId,
-			endpoint,
-			project,
-			certsDir,
-			region,
-		}),
+	action: async (deviceId: string, { endpoint }) => {
+		await
+			connect({
+				deviceId,
+				endpoint,
+				project,
+				certsDir,
+				region,
+				deviceUiUrl: `https://${deviceUiFirebaseProject}.web.app`
+			})
+	},
 	help: 'Connect to the GCP IoT broker using a generated device certificate.',
 })
