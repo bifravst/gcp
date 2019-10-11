@@ -7,6 +7,7 @@ import { URL } from 'url'
 import { deviceTopics } from '../iot/deviceTopics'
 import { defaultConfig } from './defaultConfig'
 import { uiServer, WebSocketConnection } from '@bifravst/device-ui-server'
+import * as merge from 'deepmerge'
 
 /**
  * Connect to the AWS IoT broker using a generated device certificate
@@ -86,6 +87,7 @@ export const connect = async ({
 	})
 
 	let wsConnection: WebSocketConnection
+	let state: object = {}
 
 	connection.on('connect', async () => {
 		console.log(chalk.green(chalk.inverse(' connected ')))
@@ -95,7 +97,12 @@ export const connect = async ({
 			deviceId: deviceId,
 			onUpdate: update => {
 				console.log(chalk.magenta('<'), chalk.cyan(JSON.stringify(update)))
-				console.log(deviceId, { state: { reported: update } })
+				state = merge(state, update)
+				console.log(chalk.blue('State:'))
+				console.log(state)
+				const s = JSON.stringify(state)
+				console.log(chalk.magenta('>'), chalk.yellow(topics.state), chalk.blue(s))
+				connection.publish(topics.state, s)
 			},
 			onWsConnection: c => {
 				console.log(chalk.magenta('[ws]'), chalk.cyan('connected'))
