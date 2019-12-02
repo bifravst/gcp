@@ -143,7 +143,7 @@ export const connect = async ({
 				}
 				break
 			default:
-				console.log(chalk.red(`Unexpected topic:`), chalk.yellow(topic))
+				console.error(chalk.red(`Unexpected topic:`), chalk.yellow(topic))
 		}
 	})
 }
