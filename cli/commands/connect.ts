@@ -23,15 +23,14 @@ export const connectCommand = ({
 		},
 	],
 	action: async (deviceId: string, { endpoint }) => {
-		await
-			connect({
-				deviceId,
-				endpoint,
-				project,
-				certsDir,
-				region,
-				deviceUiUrl: `https://${deviceUiFirebaseProject}.web.app`
-			})
+		await connect({
+			deviceId,
+			endpoint,
+			project,
+			certsDir,
+			region,
+			deviceUiUrl: `https://${deviceUiFirebaseProject}.web.app`,
+		})
 	},
 	help: 'Connect to the GCP IoT broker using a generated device certificate.',
 })

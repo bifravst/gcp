@@ -101,7 +101,11 @@ export const connect = async ({
 				console.log(chalk.blue('State:'))
 				console.log(state)
 				const s = JSON.stringify(state)
-				console.log(chalk.magenta('>'), chalk.yellow(topics.state), chalk.blue(s))
+				console.log(
+					chalk.magenta('>'),
+					chalk.yellow(topics.state),
+					chalk.blue(s),
+				)
 				connection.publish(topics.state, s)
 			},
 			onWsConnection: c => {
@@ -110,8 +114,6 @@ export const connect = async ({
 				connection.subscribe(topics.config, { qos: 1 })
 			},
 		})
-
-
 	})
 
 	connection.on('close', () => {
@@ -129,11 +131,13 @@ export const connect = async ({
 			chalk.cyan(JSON.stringify(message.toString())),
 		)
 
+		let cfg = defaultConfig
+
 		switch (topic) {
 			case topics.config:
-				const cfg = {
+				cfg = {
 					...defaultConfig,
-					...JSON.parse(message.toString())
+					...JSON.parse(message.toString()),
 				}
 				console.log(chalk.blue('Config:'))
 				console.log(cfg)

@@ -13,9 +13,9 @@ export const registerDeviceCommand = ({
 	iotClient,
 	region,
 	project,
-
 }: {
-	iotClient: cloudiot_v1.Cloudiot, region: string
+	iotClient: cloudiot_v1.Cloudiot
+	region: string
 	project: string
 }): ComandDefinition => ({
 	command: 'register-device',
@@ -45,12 +45,15 @@ export const registerDeviceCommand = ({
 
 		const certificate = deviceFileLocations({
 			certsDir,
-			deviceId: id
+			deviceId: id,
 		})
 
 		const registryName = `projects/${project}/locations/${region}/registries/bifravst`
 
-		const key = await fs.readFile(path.resolve(certsDir, certificate.publicKey), 'utf-8')
+		const key = await fs.readFile(
+			path.resolve(certsDir, certificate.publicKey),
+			'utf-8',
+		)
 
 		// Writes a self-contained JSON file
 		// This setup uses the long-term MQTT domain
@@ -59,10 +62,18 @@ export const registerDeviceCommand = ({
 			certificate.json,
 			JSON.stringify(
 				{
-					caCert: (await Promise.all([
-						fs.readFile(path.resolve(process.cwd(), 'data', 'gtsltsr.pem'), 'utf-8'),
-						fs.readFile(path.resolve(process.cwd(), 'data', 'GSR4.pem'), 'utf-8')
-					])).join(os.EOL),
+					caCert: (
+						await Promise.all([
+							fs.readFile(
+								path.resolve(process.cwd(), 'data', 'gtsltsr.pem'),
+								'utf-8',
+							),
+							fs.readFile(
+								path.resolve(process.cwd(), 'data', 'GSR4.pem'),
+								'utf-8',
+							),
+						])
+					).join(os.EOL),
 					privateKey: await fs.readFile(certificate.privateKey, 'utf-8'),
 					publicKey: key,
 					clientId: id,
@@ -73,9 +84,8 @@ export const registerDeviceCommand = ({
 			),
 		)
 
-
 		try {
-			// For some reason this fails with 
+			// For some reason this fails with
 			// The signature of device credential in position 0 could not be verified against any registry certificate.
 			await iotClient.projects.locations.registries.devices.create({
 				parent: registryName,
@@ -85,17 +95,18 @@ export const registerDeviceCommand = ({
 						{
 							publicKey: {
 								format: 'RSA_X509_PEM',
-								key
-							}
+								key,
+							},
 						},
 					],
 					id,
 					config: {
-						binaryData: Buffer.from(JSON.stringify(defaultConfig)).toString('base64')
-					}
-				}
+						binaryData: Buffer.from(JSON.stringify(defaultConfig)).toString(
+							'base64',
+						),
+					},
+				},
 			})
-
 		} catch (err) {
 			console.debug('Caught error:')
 			console.debug(JSON.stringify(err, null, 2))
@@ -104,17 +115,44 @@ export const registerDeviceCommand = ({
 			console.error(chalk.yellow('Run these commands manually:'))
 
 			console.error()
-			console.error(chalk.blueBright([
-				'gcloud',
-				'iot', 'devices', 'create', id, '--project', project, '--region', region, '--registry', 'bifravst', '--public-key',
-				`path=${certificate.publicKey},type=rsa-x509-pem`,
-			].join(' ')))
-			console.error(chalk.blueBright([
-				'gcloud',
-				'iot', 'devices', 'configs', 'update', '--device', id, '--region', region, '--registry', 'bifravst',
-				'--config-data',
-				`'${JSON.stringify(defaultConfig)}'`
-			].join(' ')))
+			console.error(
+				chalk.blueBright(
+					[
+						'gcloud',
+						'iot',
+						'devices',
+						'create',
+						id,
+						'--project',
+						project,
+						'--region',
+						region,
+						'--registry',
+						'bifravst',
+						'--public-key',
+						`path=${certificate.publicKey},type=rsa-x509-pem`,
+					].join(' '),
+				),
+			)
+			console.error(
+				chalk.blueBright(
+					[
+						'gcloud',
+						'iot',
+						'devices',
+						'configs',
+						'update',
+						'--device',
+						id,
+						'--region',
+						region,
+						'--registry',
+						'bifravst',
+						'--config-data',
+						`'${JSON.stringify(defaultConfig)}'`,
+					].join(' '),
+				),
+			)
 		}
 		console.log()
 		console.log(chalk.green('You can now connect to the broker.'))

@@ -17,10 +17,11 @@ export const registerCaCommand = ({
 	command: 'register-ca',
 	action: async () => {
 		const registryName = `projects/${project}/locations/${region}/registries/bifravst`
-		const { data: registry } = await (iotClient.projects.locations
-			.registries as cloudiot_v1.Resource$Projects$Locations$Registries).get({
-				name: registryName,
-			})
+		const {
+			data: registry,
+		} = await iotClient.projects.locations.registries.get({
+			name: registryName,
+		})
 
 		console.log(chalk.grey('Registry:'), chalk.magenta(registryName))
 
@@ -35,7 +36,7 @@ export const registerCaCommand = ({
 		})
 		console.log(chalk.magenta(`CA certificate generated.`))
 
-		await (iotClient.projects.locations.registries as cloudiot_v1.Resource$Projects$Locations$Registries).patch({
+		await iotClient.projects.locations.registries.patch({
 			name: registryName,
 			updateMask: 'credentials',
 			requestBody: {
@@ -44,14 +45,16 @@ export const registerCaCommand = ({
 					{
 						publicKeyCertificate: {
 							certificate,
-							format: 'X509_CERTIFICATE_PEM'
+							format: 'X509_CERTIFICATE_PEM',
 						},
 					},
 				],
 			},
 		})
 
-		console.log(chalk.magenta(`Added CA certificate to registry ${registryName}.`))
+		console.log(
+			chalk.magenta(`Added CA certificate to registry ${registryName}.`),
+		)
 
 		console.log(chalk.green('You can now generate device certificates.'))
 	},

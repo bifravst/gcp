@@ -35,7 +35,15 @@ export const generateCA = async (args: {
 
 	await run({
 		command: 'openssl',
-		args: ['genpkey', '-algorithm', 'RSA', '-out', caFiles.privateKey, '-pkeyopt', 'rsa_keygen_bits:2048'],
+		args: [
+			'genpkey',
+			'-algorithm',
+			'RSA',
+			'-out',
+			caFiles.privateKey,
+			'-pkeyopt',
+			'rsa_keygen_bits:2048',
+		],
 		log: debug,
 	})
 
@@ -64,6 +72,6 @@ export const generateCA = async (args: {
 	const certificate = await fs.readFile(caFiles.cert, 'utf-8')
 
 	return {
-		certificate
+		certificate,
 	}
 }

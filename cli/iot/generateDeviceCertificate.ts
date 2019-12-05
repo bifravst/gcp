@@ -17,7 +17,7 @@ export const generateDeviceCertificate = async ({
 	deviceId: string
 	log?: (...message: any[]) => void
 	debug?: (...message: any[]) => void
-}): Promise<{ deviceId: string, expires: Date }> => {
+}): Promise<{ deviceId: string; expires: Date }> => {
 	try {
 		await fs.stat(certsDir)
 	} catch {
@@ -35,7 +35,13 @@ export const generateDeviceCertificate = async ({
 	await run({
 		command: 'openssl',
 		args: [
-			'genpkey', '-algorithm', 'RSA', '-out', deviceFiles.privateKey, '-pkeyopt', 'rsa_keygen_bits:2048'
+			'genpkey',
+			'-algorithm',
+			'RSA',
+			'-out',
+			deviceFiles.privateKey,
+			'-pkeyopt',
+			'rsa_keygen_bits:2048',
 		],
 		log: debug,
 	})
@@ -44,12 +50,20 @@ export const generateDeviceCertificate = async ({
 	await run({
 		command: 'openssl',
 		args: [
-			'req', '-new', '-sha256', '-key', deviceFiles.privateKey, '-out', deviceFiles.csr, '-subj', '/CN=unused-device'
+			'req',
+			'-new',
+			'-sha256',
+			'-key',
+			deviceFiles.privateKey,
+			'-out',
+			deviceFiles.csr,
+			'-subj',
+			'/CN=unused-device',
 		],
 		log: debug,
 	})
 
-	// Create a public key and sign it with the CA private key. 
+	// Create a public key and sign it with the CA private key.
 	const validityInDays = 10950
 	await run({
 		command: 'openssl',
@@ -72,5 +86,8 @@ export const generateDeviceCertificate = async ({
 		log: debug,
 	})
 
-	return { deviceId, expires: new Date(Date.now() + (validityInDays * 24 * 60 * 60 * 1000)) }
+	return {
+		deviceId,
+		expires: new Date(Date.now() + validityInDays * 24 * 60 * 60 * 1000),
+	}
 }

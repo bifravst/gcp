@@ -5,10 +5,11 @@ import { registerCaCommand } from './commands/register-ca'
 import { createRegistryCommand } from './commands/create-registry'
 import { google } from 'googleapis'
 import { registerDeviceCommand } from './commands/register-device'
-import { connectCommand } from './commands/connect';
+import { connectCommand } from './commands/connect'
 
 const region = process.env?.GCP_REGION ?? 'europe-west1'
-const deviceUiFirebaseProject = process.env.DEVICE_UI_FIREBASE_PROJECT ?? 'bifravst-device-ui'
+const deviceUiFirebaseProject =
+	process.env.DEVICE_UI_FIREBASE_PROJECT ?? 'bifravst-device-ui'
 
 const bifravstCLI = async () => {
 	const certsDir = path.resolve(process.cwd(), 'certificates')
@@ -19,8 +20,8 @@ const bifravstCLI = async () => {
 			'https://www.googleapis.com/auth/cloud-platform',
 			'https://www.googleapis.com/auth/cloudiot',
 			'https://www.googleapis.com/auth/firebase.readonly',
-			'https://www.googleapis.com/auth/firebase'
-		]
+			'https://www.googleapis.com/auth/firebase',
+		],
 	})
 	const authClient = await auth.getClient()
 
@@ -40,24 +41,24 @@ const bifravstCLI = async () => {
 			certsDir,
 			iotClient,
 			region,
-			project
+			project,
 		}),
 		createRegistryCommand({
 			iotClient,
 			region,
-			project
+			project,
 		}),
 		registerDeviceCommand({
 			iotClient,
 			region,
-			project
+			project,
 		}),
 		connectCommand({
 			deviceUiFirebaseProject,
 			certsDir,
 			project,
 			region,
-		})
+		}),
 	]
 
 	let ran = false
