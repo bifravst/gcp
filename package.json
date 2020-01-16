@@ -37,7 +37,7 @@
     "@types/jsonwebtoken": "^8.3.5",
     "@types/node": "^12.12.14",
     "check-node-version": "^4.0.2",
-    "husky": "^3.1.0",
+    "husky": "^4.0.10",
     "typescript": "^3.7.3"
   },
   "husky": {
