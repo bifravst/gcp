@@ -31,13 +31,13 @@
     "mqtt": "^3.0.0"
   },
   "devDependencies": {
-    "@bifravst/code-style": "^6.0.1",
+    "@bifravst/code-style": "^6.0.2",
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-angular": "^8.3.4",
-    "@types/jsonwebtoken": "^8.3.6",
-    "@types/node": "^13.1.8",
+    "@types/jsonwebtoken": "^8.3.7",
+    "@types/node": "^13.7.0",
     "check-node-version": "^4.0.2",
-    "husky": "^4.0.10",
+    "husky": "^4.2.1",
     "typescript": "^3.7.5"
   },
   "husky": {
