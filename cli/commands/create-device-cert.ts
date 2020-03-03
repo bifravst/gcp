@@ -9,7 +9,7 @@ import { promises as fs } from 'fs'
 import * as os from 'os'
 import { defaultConfig } from '../device/defaultConfig'
 
-export const registerDeviceCommand = ({
+export const createDeviceCertCommand = ({
 	iotClient,
 	region,
 	project,
@@ -18,7 +18,7 @@ export const registerDeviceCommand = ({
 	region: string
 	project: string
 }): ComandDefinition => ({
-	command: 'register-device',
+	command: 'create-device-cert',
 	options: [
 		{
 			flags: '-d, --deviceId <deviceId>',
