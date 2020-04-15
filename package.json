@@ -23,7 +23,7 @@
   "author": "Nordic Semiconductor ASA | nordicsemi.no",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@bifravst/device-ui-server": "^1.1.4",
+    "@bifravst/device-ui-server": "^1.2.0",
     "@bifravst/random-words": "^4.2.0",
     "deepmerge": "^4.2.2",
     "googleapis": "^48.0.0",
