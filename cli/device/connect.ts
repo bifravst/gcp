@@ -44,7 +44,7 @@ export const connect = async ({
 
 	try {
 		await Promise.all(
-			certFiles.map(async f => {
+			certFiles.map(async (f) => {
 				try {
 					await fs.stat(f)
 					console.log(chalk.green('✔'), chalk.magenta(f))
@@ -95,7 +95,7 @@ export const connect = async ({
 		await uiServer({
 			deviceUiUrl,
 			deviceId: deviceId,
-			onUpdate: update => {
+			onUpdate: (update) => {
 				console.log(chalk.magenta('<'), chalk.cyan(JSON.stringify(update)))
 				state = merge(state, update)
 				console.log(chalk.blue('State:'))
@@ -108,10 +108,15 @@ export const connect = async ({
 				)
 				connection.publish(topics.state, s)
 			},
-			onWsConnection: c => {
+			onWsConnection: (c) => {
 				console.log(chalk.magenta('[ws]'), chalk.cyan('connected'))
 				wsConnection = c
 				connection.subscribe(topics.config, { qos: 1 })
+			},
+			onMessage: (message) => {
+				// FIXME: implement message handline
+				console.log(chalk.blue('Message'))
+				console.log(message)
 			},
 		})
 	})
