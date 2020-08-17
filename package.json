@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "@bifravst/code-style": "^7.1.2",
-    "@commitlint/cli": "^8.3.5",
-    "@commitlint/config-angular": "^8.3.4",
+    "@commitlint/cli": "^9.1.2",
+    "@commitlint/config-angular": "^9.1.2",
     "@types/jsonwebtoken": "^8.3.9",
     "@types/node": "^13.13.0",
     "check-node-version": "^4.0.3",
@@ -42,7 +42,7 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -e",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "lint-staged && npx tsc"
     }
   },
