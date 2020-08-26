@@ -28,7 +28,7 @@
     "deepmerge": "4.2.2",
     "googleapis": "49.0.0",
     "jsonwebtoken": "8.5.1",
-    "mqtt": "3.0.0"
+    "mqtt": "4.2.1"
   },
   "devDependencies": {
     "@bifravst/code-style": "7.1.11",
