@@ -24,7 +24,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "@bifravst/device-ui-server": "1.3.3",
-    "@bifravst/random-words": "4.2.0",
+    "@bifravst/random-words": "4.2.1",
     "deepmerge": "4.2.2",
     "googleapis": "49.0.0",
     "jsonwebtoken": "8.5.1",
