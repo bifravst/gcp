@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs'
-import { connect as mqttConnect } from 'mqtt'
+import { connect as mqttConnect, MqttClient } from 'mqtt'
 import { deviceFileLocations } from '../iot/deviceFileLocations'
 import chalk from 'chalk'
 import * as jwt from 'jsonwebtoken'
@@ -10,7 +10,7 @@ import { uiServer, WebSocketConnection } from '@bifravst/device-ui-server'
 import * as merge from 'deepmerge'
 
 /**
- * Connect to the AWS IoT broker using a generated device certificate
+ * Connect to the GCP IoT broker using a generated device certificate
  */
 export const connect = async ({
 	deviceId,
@@ -26,7 +26,7 @@ export const connect = async ({
 	region: string
 	certsDir: string
 	deviceUiUrl: string
-}) => {
+}): Promise<MqttClient> => {
 	const deviceFiles = deviceFileLocations({ certsDir, deviceId })
 
 	console.log(chalk.blue('Device ID:     '), chalk.yellow(deviceId))
@@ -87,7 +87,7 @@ export const connect = async ({
 	})
 
 	let wsConnection: WebSocketConnection
-	let state: object = {}
+	let state: Record<string, any> = {}
 
 	connection.on('connect', async () => {
 		console.log(chalk.green(chalk.inverse(' connected ')))
@@ -118,6 +118,11 @@ export const connect = async ({
 				console.log(chalk.blue('Message'))
 				console.log(message)
 			},
+			onBatch: (batch) => {
+				// FIXME: implement message handline
+				console.log(chalk.blue('Batch'))
+				console.log(batch)
+			},
 		})
 	})
 
@@ -146,7 +151,7 @@ export const connect = async ({
 				}
 				console.log(chalk.blue('Config:'))
 				console.log(cfg)
-				if (wsConnection) {
+				if (wsConnection !== undefined) {
 					console.log(chalk.magenta('[ws>'), JSON.stringify(cfg))
 					wsConnection.send(JSON.stringify(cfg))
 				}
@@ -155,4 +160,6 @@ export const connect = async ({
 				console.error(chalk.red(`Unexpected topic:`), chalk.yellow(topic))
 		}
 	})
+
+	return connection
 }
